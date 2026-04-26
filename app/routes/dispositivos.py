@@ -41,3 +41,9 @@ async def listar_dispositivos(data : dict):
         }
     else:
         return {"status": 401, "erro": "API key inválida"}
+    
+
+
+@router.get("/health")
+async def health_check():
+    return {"total": len(active_connections),"status": "ok"}
