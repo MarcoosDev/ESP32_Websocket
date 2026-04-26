@@ -7,4 +7,4 @@ class Val:
         self.conn_concluita = "conn.concluido"  
         self.api_invalid = "api_invalid"
         self.destinatario_invalido = "destinatario invalido"
-        self.mensagem_externa = "mens_extern"
+        self.mensagem_externa = "mens_client_extern"
