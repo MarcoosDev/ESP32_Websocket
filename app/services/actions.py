@@ -1,0 +1,106 @@
+import asyncio
+from app.core.shared import active_connections, active_connections_lock
+from app.models.clientes_model import Cliente
+from app.core.shared import API_KEY, SERVER_ID, valor
+from fastapi import WebSocket
+from app.models.json_model import Json_format
+
+class Action:
+    def __init__(self, cliente: Cliente, ws: WebSocket):
+        self.cliente = cliente
+        self.websocket = ws
+        self.json = Json_format(websocket=ws, cliente=cliente)
+
+    async def receber_apikey(self):
+        if self.cliente.mensagem != API_KEY:
+            await self.json._enviar_json(
+                tipo=valor.response_server,
+                origem=SERVER_ID,
+                destinatario=self.cliente.origem,
+                mensagem=valor.api_invalid
+            )
+            await self.websocket.close()
+            return valor.api_invalid
+
+        await self.receber_id()
+
+        await self.json._enviar_resposta(
+            mensagem=valor.conn_concluita,
+            destinatario=self.cliente.origem
+        )
+        print("Cliente autenticado com sucesso!")
+        
+    async def receber_id(self):
+        device_id = self.cliente.origem
+
+        if not device_id or len(device_id) > 100:  
+            await self.json._enviar_erro(
+                mensagem="ID_invalido.",
+                destinatario=self.cliente.id
+            )
+            await self.websocket.close()
+            return
+
+        async with active_connections_lock:
+            if device_id in active_connections:
+                old_ws = active_connections.pop(device_id)
+                need_to_close = True
+            else:
+                need_to_close = False
+            active_connections[device_id] = self.websocket
+
+        if need_to_close:
+            try:
+                await old_ws.close(code=1000, reason="Nova conexão")
+            except Exception:
+                pass
+            
+        total_conns = len(active_connections)
+        print(f"{device_id} registrado! Total: {total_conns}")
+
+
+
+    async def enviar_mensagem_extern(self):
+        encontrado = False
+        codigo_websocket = None
+        if self.cliente.destin == SERVER_ID:
+            print(f"\nMensagem interna recebida.\nOrigem: {self.cliente.id}\nMensagem: {self.cliente.mensagem}\n")
+            return
+        async with active_connections_lock:
+            chaves = list(active_connections.keys())
+            for chave in chaves:
+                if self.cliente.destin in chave:
+                    encontrado = True
+                    codigo_websocket = active_connections.get(chave)  
+                    print(f"Encontrado! Chave: {chave}")
+                    break
+
+        if encontrado and codigo_websocket:
+            try:
+                await self.json._enviar_json(
+                    tipo=valor.mensagem_externa,
+                    origem=self.cliente.id,
+                    destinatario=self.cliente.destin,
+                    mensagem=self.cliente.mensagem,
+                    websocket=codigo_websocket
+                )
+                print("Envio Concluído com sucesso!")
+            except Exception as e:
+                print(f"Falha ao enviar para {self.cliente.destin}: {e}")
+                async with active_connections_lock:
+                    for chave, ws in list(active_connections.items()):
+                        if ws == codigo_websocket:
+                            del active_connections[chave]
+                            break
+        else:
+            await self.json._enviar_erro(
+                mensagem=valor.destinatario_invalido,
+                destinatario=self.cliente.id
+            )
+            print(f"{self.cliente.destin} não encontrado em nenhuma chave")
+
+    async def returnWS(self, text: str):
+        try:
+            await self.websocket.send_text(text)
+        except Exception:
+            print("Falha ao enviar mensagem de retorno.")
