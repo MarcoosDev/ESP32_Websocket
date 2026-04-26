@@ -223,7 +223,8 @@ void setup() {
 
   webSocket.begin(ws_host, ws_port, ws_path);
   webSocket.onEvent(webSocketEvent);
-  webSocket.setReconnectInterval(5000); 
+  webSocket.setReconnectInterval(5000);
+  Serial.println("Conexão feita com sucesso!");
 }
 
 void loop() {
