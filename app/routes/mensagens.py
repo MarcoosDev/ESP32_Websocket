@@ -44,8 +44,15 @@ async def enviar_para_todos(texto: str, data: dict):
         sucessos = []
         for nome, conexao in active_connections.items():
             try:
-                await conexao.send_text(texto)
+                await json._enviar_json(
+                tipo=database.extern_id,
+                origem=database.extern_id,
+                destinatario = nome,
+                mensagem=texto,
+                websocket= active_connections[nome]
+                )
                 sucessos.append(nome)
+                
             except:
                 print(f"Falha ao enviar para {nome}")
         
