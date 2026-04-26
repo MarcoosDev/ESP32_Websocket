@@ -46,6 +46,10 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
 
-
-
+@app.get("/")
+async def health_check():
+    return {"total": len(active_connections),"status": "ok"}

@@ -44,6 +44,4 @@ async def listar_dispositivos(data : dict):
     
 
 
-@router.get("/health")
-async def health_check():
-    return {"total": len(active_connections),"status": "ok"}
+
