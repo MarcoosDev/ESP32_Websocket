@@ -1,7 +1,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import asyncio
 from app.routes import dispositivos_router, mensagens_router
-from app.core.shared import active_connections, valor
+from app.core.shared import valor,active_connections_lock
 from app.services.ler_mensagem import ler_mensagem
 import json
 
@@ -40,9 +40,9 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         print(f"Erro inesperado para {device_id or 'cliente'}: {e}")
     finally:
-        if device_id and active_connections.get(device_id) == websocket:
-            del active_connections[device_id]
-            print(f"{device_id} removido! Total: {len(active_connections)}")
+        if device_id and active_connections_lock.get(device_id) == websocket:
+            del active_connections_lock[device_id]
+            print(f"{device_id} removido! Total: {len(active_connections_lock)}")
 
 
 
@@ -52,4 +52,4 @@ async def health_check():
 
 @app.get("/")
 async def health_check():
-    return {"total": len(active_connections),"status": "ok"}
+    return {"total": len(active_connections_lock),"status": "ok"}
