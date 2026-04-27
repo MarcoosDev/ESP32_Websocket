@@ -3,6 +3,7 @@ import asyncio
 from app.routes import dispositivos_router, mensagens_router
 from app.core.shared import valor,active_connections_lock, active_connections
 from app.services.ler_mensagem import ler_mensagem
+from app.models.clientes_model import Cliente
 import json
 
 app = FastAPI(title="ESP32 servidor WebSocket ")
@@ -14,22 +15,20 @@ app.include_router(mensagens_router)
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     print("Nova conexão recebida")
-    device_id = None
-    
     try:                
         receber_api_key = await asyncio.wait_for(
             websocket.receive_text(),
             timeout=10.0  
         )
         receber_api_key = json.loads(receber_api_key)
-        ws = await ler_mensagem(payload = receber_api_key, websocket = websocket);
+        ws, clien = await ler_mensagem(payload = receber_api_key, websocket = websocket);
         if ws == valor.api_invalid:
             return
-        
+        device_id = clien.id
         while True:
             mensagem = await websocket.receive_text()
             mensagem = json.loads(mensagem)
-            ws = await ler_mensagem(payload = mensagem, websocket = websocket);
+            ws, clien = await ler_mensagem(payload = mensagem, websocket = websocket);
             if ws == valor.api_invalid:
                 break
                     

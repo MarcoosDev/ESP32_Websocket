@@ -12,8 +12,8 @@ async def ler_mensagem(payload, websocket : WebSocket):
     
     match (cliente.tipo):
         case "send_api_key":
-            return await action.receber_apikey()
+            return await action.receber_apikey(), cliente
         
         case "SendMensageExtern":
-            return await action.enviar_mensagem_extern()
+            return await action.enviar_mensagem_extern(), cliente
     
