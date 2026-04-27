@@ -1,7 +1,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import asyncio
 from app.routes import dispositivos_router, mensagens_router
-from app.core.shared import valor,active_connections_lock
+from app.core.shared import valor,active_connections_lock, active_connections
 from app.services.ler_mensagem import ler_mensagem
 import json
 
@@ -42,7 +42,7 @@ async def websocket_endpoint(websocket: WebSocket):
     finally:
         if device_id and active_connections_lock.get(device_id) == websocket:
             del active_connections_lock[device_id]
-            print(f"{device_id} removido! Total: {len(active_connections_lock)}")
+            print(f"{device_id} removido! Total: {len(active_connections)}")
 
 
 
@@ -52,4 +52,4 @@ async def health_check():
 
 @app.get("/")
 async def health_check():
-    return {"total": len(active_connections_lock),"status": "ok"}
+    return {"total": len(active_connections),"status": "ok"}
