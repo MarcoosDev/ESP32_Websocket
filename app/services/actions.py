@@ -69,7 +69,7 @@ class Action:
         async with active_connections_lock:
             chaves = list(active_connections.keys())
             for chave in chaves:
-                if self.cliente.destin in chave:
+                if self.cliente.destin == chave:
                     encontrado = True
                     codigo_websocket = active_connections.get(chave)  
                     print(f"Encontrado! Chave: {chave}")
