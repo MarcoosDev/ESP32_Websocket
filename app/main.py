@@ -15,7 +15,8 @@ app.include_router(mensagens_router)
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     print("Nova conexão recebida")
-    try:                
+    try:
+        device_id = None
         receber_api_key = await asyncio.wait_for(
             websocket.receive_text(),
             timeout=10.0  
