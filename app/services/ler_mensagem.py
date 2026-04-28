@@ -1,13 +1,12 @@
-import asyncio
 from fastapi import WebSocket
 from app.models.clientes_model import Cliente
 from app.services.actions import Action
 
-async def ler_mensagem(payload, websocket : WebSocket):
+async def ler_mensagem(payload, ws : WebSocket):
     cliente = Cliente(mensagem=payload)
     action = Action(
         cliente = cliente,
-        ws = websocket
+        ws = ws
         )
     
     match (cliente.tipo):
