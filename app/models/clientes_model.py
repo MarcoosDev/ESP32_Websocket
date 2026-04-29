@@ -4,4 +4,4 @@ class Cliente:
         self.origem = msg.get("origem")
         self.id = self.origem
         self.destin = msg.get("destinatario")
-        self.msg = msg.get("mensagem")
+        self.mensagem = msg.get("mensagem")
