@@ -2,8 +2,8 @@ from fastapi import WebSocket
 from app.models.clientes_model import Cliente
 from app.services.actions import Action
 
-async def ler_mensagem(payload, ws : WebSocket):
-    cliente = Cliente(mensagem=payload)
+async def ler_mensagem(payload: dict, ws : WebSocket):
+    cliente = Cliente(msg = payload)
     action = Action(
         cliente = cliente,
         ws = ws

@@ -1,7 +1,7 @@
 class Cliente:
-    def __init__(self, mensagem):
-        self.tipo = mensagem.get("type")
-        self.origem = mensagem.get("origem")
+    def __init__(self, msg : dict):
+        self.tipo = msg.get("type")
+        self.origem = msg.get("origem")
         self.id = self.origem
-        self.destin = mensagem.get("destinatario")
-        self.mensagem = mensagem.get("mensagem")
+        self.destin = msg.get("destinatario")
+        self.msg = msg.get("mensagem")

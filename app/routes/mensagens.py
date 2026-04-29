@@ -1,5 +1,3 @@
-from fastapi import APIRouter, WebSocket
-from typing import Dict
 from app.core.database import DataBase
 from app.core.shared import active_connections, valor
 from app.routes import mensagens_router as router

@@ -27,10 +27,10 @@ async def websocket_endpoint(websocket: WebSocket):
             payload = json.loads(receber_api_key), 
             ws = websocket
         )
-        
+
         if ws == valor.api_invalid:
             return
-        
+
         device_id = cliente.id
 
         while True:
@@ -38,12 +38,12 @@ async def websocket_endpoint(websocket: WebSocket):
             
             ws, cliente = await ler_mensagem (
                 payload = json.loads(mensagem),
-                websocket = websocket
+                ws = websocket
             )
-            
+
             if ws == valor.api_invalid:
                 break
-   
+
     except asyncio.TimeoutError:
         print(f"Timeout na autenticação/registro para {device_id or 'novo cliente'}")
 
@@ -64,6 +64,6 @@ async def health_check():
     return {"status": "ok"}
 
 
-@app.get("/")
+@app.get("/total")
 async def health_check():
     return {"total": len(active_connections),"status": "ok"}

@@ -1,4 +1,3 @@
-from fastapi import APIRouter
 from app.core.shared import active_connections
 from app.core.database import DataBase
 from app.routes import dispositivos_router as router
@@ -18,6 +17,7 @@ async def status(data: dict):
     else:
         return {"status": 401, "erro": "API key inválida"}
 
+
 @router.post("/list")
 async def listar_dispositivos(data : dict):
     api_key = data.get("api_key")
@@ -29,7 +29,7 @@ async def listar_dispositivos(data : dict):
                 cliente_info = f"{ws.client[0]}:{ws.client[1]}"
             
             info.append({
-                "id": i + 1,
+                "ordem": i + 1,
                 "nome": device_id,
                 "cliente": cliente_info,
                 "status": "conectado"
