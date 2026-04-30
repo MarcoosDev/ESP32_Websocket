@@ -34,7 +34,7 @@ class Action:
             return valor.api_invalid
 
         await self.receber_id()
-
+        
         await self.json._enviar_resposta(
             mensagem=valor.conn_concluita,
             destinatario=self.cliente.origem
@@ -50,27 +50,17 @@ class Action:
         device_id = self.cliente.origem
 
         if not device_id or len(device_id) > 100:  
-            await self.json._enviar_erro(
-                mensagem="ID_invalido.",
-                destinatario=self.cliente.id
-            )
+            await self.json._enviar_erro(mensagem = valor.id_invalid, destinatario=self.cliente.id)
             await self.websocket.close()
             return
 
         async with active_connections_lock:
-            if device_id in active_connections:
-                old_ws = active_connections.pop(device_id)
-                need_to_close = True
-            else:
-                need_to_close = False
+            old_ws = active_connections.pop(device_id, None)
             active_connections[device_id] = self.websocket
 
-        if need_to_close:
+        if old_ws is not None:
             try:
-                await old_ws.close (
-                    code=1000, 
-                    reason="Nova conexão"
-                )
+                await old_ws.close(code=1000, reason="Nova conexão")
             except Exception:
                 pass
             
@@ -81,23 +71,17 @@ class Action:
     async def enviar_mensagem_extern(self):
         """
         envia mensagens entre clientes, realizando a função
-        principal do projeto, ser uma ponte entre 2 ou mais dispotivos com websocket
+        principal do projeto, que é ser uma ponte entre dois ou mais dispotivos com websocket
         """
-        encontrado = False
-        codigo_websocket = None
-        if self.cliente.destin == SERVER_ID:
-            print(f"\nMensagem interna recebida.\nOrigem: {self.cliente.id}\nMensagem: {self.cliente.mensagem}\n")
-            return
-        async with active_connections_lock:
-            chaves = list(active_connections.keys())
-            for chave in chaves:
-                if self.cliente.destin == chave:
-                    encontrado = True
-                    codigo_websocket = active_connections.get(chave)  
-                    print(f"Encontrado! Chave: {chave}")
-                    break
 
-        if encontrado and codigo_websocket:
+        codigo_websocket = None
+
+        async with active_connections_lock:
+            codigo_websocket = active_connections.get(self.cliente.destin)
+
+        if codigo_websocket:
+            print(f"Encontrado! Destino: {self.cliente.destin}")
+
             try:
                 await self.json._enviar_json(
                     tipo=valor.mensagem_externa,
@@ -112,10 +96,13 @@ class Action:
             except Exception as e:
                 print(f"Falha ao enviar para {self.cliente.destin}: {e}")
                 async with active_connections_lock:
-                    for chave, ws in list(active_connections.items()):
-                        if ws == codigo_websocket:
-                            del active_connections[chave]
-                            break
+                    chave_para_remover = next(
+                        (chave for chave, ws in active_connections.items() 
+                        if ws == codigo_websocket), 
+                        None
+                    )
+                    if chave_para_remover is not None:
+                        del active_connections[chave_para_remover]
 
         else:
             await self.json._enviar_erro(
@@ -125,8 +112,23 @@ class Action:
             print(f"{self.cliente.destin} não encontrado em nenhuma chave")
 
 
-    async def returnWS(self, text: str):
-        try:
-            await self.websocket.send_text(text)
-        except Exception:
-            print("Falha ao enviar mensagem de retorno.")
+    async def enviar_extern_all(self):
+        """envia mensagens a todos os clientes conectados,
+        menos o proprio que solicitou o envio"""
+
+        if len(active_connections) < 1:
+            await self.json._enviar_erro(
+                mensagem = valor.sem_clientes,
+                destinatario = self.cliente.id
+            )
+
+        async with active_connections_lock:
+            for chave, ws in list(active_connections.items()):
+                if chave != self.cliente.id:
+                    await self.json._enviar_json(
+                        tipo = valor.mensagem_externa,
+                        origem = self.cliente.id,
+                        destinatario = chave,
+                        mensagem = self.cliente.mensagem,
+                        websocket = ws,
+                    )

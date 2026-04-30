@@ -6,7 +6,7 @@ async def ler_mensagem(payload: dict, ws : WebSocket):
     """Função para ler a mensagem recebida de um cliente, 
     futuramente irá ter mais tipos de solicitação vinda dos 
     clientes"""
-    
+
     cliente = Cliente(msg = payload)
     action = Action(
         cliente = cliente,
@@ -19,4 +19,7 @@ async def ler_mensagem(payload: dict, ws : WebSocket):
         
         case "SendMensageExtern":
             return await action.enviar_mensagem_extern(), cliente
+        
+        case "SendMensageExternALL":
+            return await action.enviar_extern_all, cliente
     
