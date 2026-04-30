@@ -137,7 +137,7 @@ class Action:
 
         await self.json._enviar_json(
             tipo = valor.sucesso_send_extern_mensage,
-            mensagem = "sucessos: " + sucessos,
+            mensagem = "sucessos: " + str(sucessos),
             destinatario=self.cliente.origem,
             origem=SERVER_ID,
             websocket=self.websocket
