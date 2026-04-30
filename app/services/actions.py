@@ -116,7 +116,7 @@ class Action:
         """envia mensagens a todos os clientes conectados,
         menos o proprio que solicitou o envio"""
 
-        if len(active_connections) < 1:
+        if len(active_connections) < 2:
             await self.json._enviar_erro(
                 mensagem = valor.sem_clientes,
                 destinatario = self.cliente.id
