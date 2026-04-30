@@ -10,3 +10,4 @@ class Val:
         self.destinatario_invalido = "destinatario invalido"
         self.sem_clientes = "nenhum_outro_cliente"
         self.mensagem_externa = "mens_client_extern"
+        self.sucesso_send_extern_mensage = "sucesso_client_extern_concluid"

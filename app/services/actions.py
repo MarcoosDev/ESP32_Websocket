@@ -122,6 +122,7 @@ class Action:
                 destinatario = self.cliente.id
             )
 
+        sucessos = 0
         async with active_connections_lock:
             for chave, ws in list(active_connections.items()):
                 if chave != self.cliente.id:
@@ -132,3 +133,14 @@ class Action:
                         mensagem = self.cliente.mensagem,
                         websocket = ws,
                     )
+                    sucessos = sucessos + 1
+
+        await self.json._enviar_json(
+            tipo = valor.sucesso_send_extern_mensage,
+            mensagem = "sucessos: " + sucessos,
+            destinatario=self.cliente.origem,
+            origem=SERVER_ID,
+            websocket=self.websocket
+        )
+
+                
