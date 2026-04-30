@@ -21,5 +21,5 @@ async def ler_mensagem(payload: dict, ws : WebSocket):
             return await action.enviar_mensagem_extern(), cliente
         
         case "SendMensageExternALL":
-            return await action.enviar_extern_all, cliente
+            return await action.enviar_extern_all(), cliente
     
