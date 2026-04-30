@@ -8,6 +8,9 @@ API_KEY = database.apy_key
 
 @router.post("/enviar/{nome}/{texto}")
 async def enviar_para_dispositivo(nome: str, texto: str, data: dict):
+    """
+    envia mensagem apenas para um cliente conectado especifico, que for especificado em {nome}
+    """
     api_key = data.get("api_key")
     
     if api_key != API_KEY:
@@ -39,6 +42,9 @@ async def enviar_para_dispositivo(nome: str, texto: str, data: dict):
 
 @router.post("/enviar_all/{texto}")
 async def enviar_para_todos(texto: str, data: dict):
+    """
+    envia mensagens para todos os clientes conectados ao servidor
+    """
     api_key = data.get("api_key")
 
     if api_key != API_KEY:

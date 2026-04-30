@@ -7,6 +7,9 @@ API_KEY = database.apy_key
 
 @router.post("/status")
 async def status(data: dict):
+    """rota para solicitar um status basico do servidor,
+    sera retirada no futuro e substituida por outras com mais funções."""
+
     api_key = data.get("api_key")
 
     if api_key != API_KEY:
@@ -21,6 +24,10 @@ async def status(data: dict):
 
 @router.post("/list")
 async def listar_dispositivos(data : dict):
+    """Rota que retorna uma lista de todos os clientes 
+    conectados ao servidor, recomendado se um dos clientes não
+    sabe quais suas opções de contato disponiveis"""
+
     api_key = data.get("api_key")
 
     if api_key != API_KEY:

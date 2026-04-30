@@ -13,6 +13,10 @@ app.include_router(mensagens_router)
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
+    """
+    Rota principal de conexão ao Websocket
+    """
+
     await websocket.accept()
     print("Nova conexão recebida")
     try:
@@ -58,7 +62,7 @@ async def websocket_endpoint(websocket: WebSocket):
             del active_connections[device_id]
             print(f"{device_id} removido! Total: {len(active_connections)}")
 
-
+            
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
