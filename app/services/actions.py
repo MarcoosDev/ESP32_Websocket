@@ -121,6 +121,7 @@ class Action:
                 mensagem = valor.sem_clientes,
                 destinatario = self.cliente.id
             )
+            return
 
         sucessos = 0
         async with active_connections_lock:
